@@ -39,12 +39,14 @@ GameManager.prototype.setup = function () {
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
                                 previousState.grid.cells); // Reload grid
+    this.rightGrid   = new Grid(this.size); // right grid not loaded in local storage yet
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
   } else {
     this.grid        = new Grid(this.size);
+    this.rightGrid   = new Grid(this.size);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
@@ -61,15 +63,23 @@ GameManager.prototype.setup = function () {
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
   for (var i = 0; i < this.startTiles; i++) {
-    this.addRandomTile();
+    this.addRandomTile("left");
+  }
+  for (var i = 0; i < this.startTiles; i++) {
+    this.addRandomTile("right");
   }
 };
 
 // Adds a tile in a random position
-GameManager.prototype.addRandomTile = function () {
-  if (this.grid.cellsAvailable()) {
+GameManager.prototype.addRandomTile = function (side) {
+  if (side == "right" && (this.rightGrid.cellsAvailable())) {
     var value = Math.random() < 0.9 ? 2 : 4;
-    var tile = new Tile(this.grid.randomAvailableCell(), value);
+    var tile = new Tile(this.rightGrid.randomAvailableCell(), value, side);
+
+    this.rightGrid.insertTile(tile);
+  } else if (this.grid.cellsAvailable()) {
+    var value = Math.random() < 0.9 ? 2 : 4;
+    var tile = new Tile(this.grid.randomAvailableCell(), value, side);
 
     this.grid.insertTile(tile);
   }
@@ -88,7 +98,7 @@ GameManager.prototype.actuate = function () {
     this.storageManager.setGameState(this.serialize());
   }
 
-  this.actuator.actuate(this.grid, {
+  this.actuator.actuate(this.grid, this.rightGrid, {
     score:      this.score,
     over:       this.over,
     won:        this.won,

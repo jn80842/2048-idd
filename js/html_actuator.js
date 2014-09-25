@@ -8,13 +8,22 @@ function HTMLActuator() {
   this.score = 0;
 }
 
-HTMLActuator.prototype.actuate = function (grid, metadata) {
+HTMLActuator.prototype.actuate = function (grid, grid2, metadata) {
   var self = this;
 
   window.requestAnimationFrame(function () {
     self.clearContainer(self.tileContainer);
+    self.clearContainer(self.rightTileContainer);
 
     grid.cells.forEach(function (column) {
+      column.forEach(function (cell) {
+        if (cell) {
+          self.addTile(cell);
+        }
+      });
+    });
+
+    grid2.cells.forEach(function (column) {
       column.forEach(function (cell) {
         if (cell) {
           self.addTile(cell);
@@ -48,12 +57,13 @@ HTMLActuator.prototype.clearContainer = function (container) {
 };
 
 HTMLActuator.prototype.addTile = function (tile) {
+
   var self = this;
 
   var wrapper   = document.createElement("div");
   var inner     = document.createElement("div");
   var position  = tile.previousPosition || { x: tile.x, y: tile.y };
-  var positionClass = this.positionClass(position);
+  var positionClass = this.positionClass(position,tile.side);
 
   // We can't use classlist because it somehow glitches when replacing classes
   var classes = ["tile", "tile-" + tile.value, positionClass];
@@ -87,6 +97,7 @@ HTMLActuator.prototype.addTile = function (tile) {
   // Add the inner part of the tile to the wrapper
   wrapper.appendChild(inner);
 
+
   // Put the tile on the board
   if (tile.side == "right") {
     this.rightTileContainer.appendChild(wrapper);
@@ -103,9 +114,13 @@ HTMLActuator.prototype.normalizePosition = function (position) {
   return { x: position.x + 1, y: position.y + 1 };
 };
 
-HTMLActuator.prototype.positionClass = function (position) {
+HTMLActuator.prototype.positionClass = function (position,side) {
   position = this.normalizePosition(position);
-  return "tile-position-" + position.x + "-" + position.y;
+  if (side == "left") {
+    return "tile-position-" + position.x + "-" + position.y;
+  } else {
+    return "right-tile-position-" + position.x + "-" + position.y;
+  }
 };
 
 HTMLActuator.prototype.updateScore = function (score) {
