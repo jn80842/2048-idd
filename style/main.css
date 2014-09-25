@@ -116,7 +116,7 @@ hr {
   margin-bottom: 30px; }
 
 .container {
-  width: 500px;
+  width: 1200px;
   margin: 0 auto; }
 
 @-webkit-keyframes fade-in {
@@ -151,7 +151,7 @@ hr {
   touch-action: none;
   background: #bbada0;
   border-radius: 6px;
-  width: 500px;
+  width: 1100px;
   height: 500px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -223,6 +223,10 @@ hr {
   background: rgba(238, 228, 218, 0.35); }
   .grid-cell:last-child {
     margin-right: 0; }
+
+.right-grid-container {
+  right: 20px;
+}
 
 .tile-container {
   position: absolute;

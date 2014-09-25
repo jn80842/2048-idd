@@ -1,5 +1,6 @@
 function HTMLActuator() {
-  this.tileContainer    = document.querySelector(".tile-container");
+  this.tileContainer    = document.querySelector(".left-tile-container");
+  this.rightTileContainer = document.querySelector(".right-tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
@@ -87,7 +88,11 @@ HTMLActuator.prototype.addTile = function (tile) {
   wrapper.appendChild(inner);
 
   // Put the tile on the board
-  this.tileContainer.appendChild(wrapper);
+  if (tile.side == "right") {
+    this.rightTileContainer.appendChild(wrapper);
+  } else {
+    this.tileContainer.appendChild(wrapper);
+  }
 };
 
 HTMLActuator.prototype.applyClasses = function (element, classes) {
