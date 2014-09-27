@@ -10,6 +10,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
   this.inputManager.on("flip", this.flip.bind(this));
+  this.inputManager.on("merge", this.merge.bind(this));
 
   this.setup();
 }
@@ -32,8 +33,12 @@ GameManager.prototype.flip = function() {
   var newRightGridClasses = this.rightGrid.flipActive();
   this.actuator.applyClasses(this.actuator.gridContainer,newLeftGridClasses);
   this.actuator.applyClasses(this.actuator.rightGridContainer,newRightGridClasses)
-}
+};
 
+GameManager.prototype.merge = function() {
+  console.log("call GameManager merge");
+  this.moveSide();
+};
 // Return true if the game is lost, or has won and the user hasn't kept playing
 GameManager.prototype.isGameTerminated = function () {
   return this.over || (this.won && !this.keepPlaying);
@@ -145,6 +150,19 @@ GameManager.prototype.prepareTiles = function () {
   });
 };
 
+GameManager.prototype.moveTileSide = function(tile,cell) {
+  if (tile.side == "left") {
+    this.grid.cells[tile.x][tile.y] = null;
+    this.rightGrid.cells[tile.x][tile.y] = tile;
+    tile.updatePosition(cell);
+  } else {
+    this.rightGrid.cells[tile.x][tile.y] = null;
+    this.grid.cells[tile.x][tile.y] = tile;
+    tile.updatePosition(cell);
+  }
+}
+
+
 // Move a tile and its representation
 GameManager.prototype.moveTile = function (tile, cell) {
   if (tile.side == "left") {
@@ -156,6 +174,69 @@ GameManager.prototype.moveTile = function (tile, cell) {
     this.rightGrid.cells[cell.x][cell.y] = tile;
     tile.updatePosition(cell);
   }
+};
+
+GameManager.prototype.moveSide = function() { // direction is determined by which grid is active
+  //console.log("made it to moveSide method");
+  var gridMovingFrom, gridMovingTo,activeSide,inactiveSide;
+  if (this.grid.isActive()) {
+    gridMovingFrom = this.grid;
+    gridMovingTo = this.rightGrid;
+    activeSide = "left";
+    inactiveSide = "right";
+  } else {
+    gridMovingFrom = this.rightGrid;
+    gridMovingTo = this.grid;
+    activeSide = "right";
+    inactiveSide = "left";
+  }
+  //console.log("active side is " + activeSide);
+  if (this.isGameTerminated()) return; // notice this is ill-defined for 2 grids though
+  var cell, tile;
+  var moved = false;
+  this.prepareTiles();
+  for (var posx = 0; posx < this.size; posx++) {
+    for (var posy = 0; posy < this.size; posy++) {
+      //console.log("checking " + posx + " " + " posy" + posy);
+      cell = { x: posx, y: posy, side: activeSide };
+      tile = gridMovingFrom.cellContent(cell);
+      if (tile) {
+        console.log("found a tile " + tile.x + " " + tile.y + " " + tile.side + " " + tile.value);
+        cell.side = inactiveSide;
+        next = gridMovingTo.cellContent(cell);
+        if (next) {
+          console.log("found a next " + next.x + " " + next.y + " " + next.side + " " + next.value);
+        }
+        if (next && tile.value == next.value) {
+          var merged = new Tile(cell, tile.value * 2);
+          console.log("new merged tile " + merged.x + " " + merged.y + " " + merged.side + " " + merged.value);
+          merged.mergedFrom = [tile, next];
+          gridMovingTo.insertTile(merged);
+          gridMovingFrom.removeTile(tile);
+          tile.updatePosition(cell);
+          this.score += merged.value;
+          if (merged.value === 2048) this.won = true;
+          moved = true;
+        }
+        if (!next) {
+          this.moveTileSide(tile,cell);
+          moved = true;
+        }
+
+      }
+    }
+  }
+  if (moved) {
+    console.log("something moved");
+    this.addRandomTile(activeSide);
+    if (!this.movesAvailable()) { // also only checks left i think?
+      this.over = true; // Game over!
+    }
+
+    this.actuate();
+
+  }
+
 };
 
 // Move tiles on the grid in the specified direction
@@ -260,7 +341,6 @@ GameManager.prototype.buildTraversals = function (vector) {
   return traversals;
 };
 
-// this method hardcoded to only deal with left for now
 GameManager.prototype.findFarthestPosition = function (cell, vector, grid) {
   var previous;
 

@@ -70,6 +70,11 @@ KeyboardInputManager.prototype.listen = function () {
     if (!modifiers && event.which == 70) {
       self.flip.call(self, event);
     }
+
+    if (!modifiers && event.which == 77) {
+      console.log("we saw an m!");
+      self.merge.call(self, event);
+    }
   });
 
   // Respond to button presses
@@ -150,4 +155,10 @@ KeyboardInputManager.prototype.bindButtonPress = function (selector, fn) {
 KeyboardInputManager.prototype.flip = function (event) {
   event.preventDefault();
   this.emit("flip");
+}
+
+KeyboardInputManager.prototype.merge = function (event) {
+  event.preventDefault();
+  console.log("should be merging!");
+  this.emit("merge");
 }
