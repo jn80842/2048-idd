@@ -38,15 +38,15 @@ GameManager.prototype.setup = function () {
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
-                                previousState.grid.cells,"left"); // Reload grid
-    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells,"right"); 
+                                previousState.grid.cells,"left",true); // Reload grid
+    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells,"right",false); 
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
   } else {
-    this.grid        = new Grid(this.size,null,"left");
-    this.rightGrid   = new Grid(this.size,null,"right");
+    this.grid        = new Grid(this.size,null,"left",true);
+    this.rightGrid   = new Grid(this.size,null,"right",true);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
@@ -54,6 +54,7 @@ GameManager.prototype.setup = function () {
 
     // Add the initial tiles
     this.addStartTiles();
+    this.grid.flipActive();
   }
 
   // Update the actuator
@@ -72,12 +73,12 @@ GameManager.prototype.addStartTiles = function () {
 
 // Adds a tile in a random position
 GameManager.prototype.addRandomTile = function (side) {
-  if (side == "right" && (this.rightGrid.cellsAvailable())) {
+  if (side == "right" && (this.rightGrid.isActive()) && (this.rightGrid.cellsAvailable())) {
     var value = Math.random() < 0.9 ? 2 : 4;
     var tile = new Tile(this.rightGrid.randomAvailableCell(), value);
 
     this.rightGrid.insertTile(tile);
-  } else if (this.grid.cellsAvailable()) {
+  } else if (this.grid.isActive() && this.grid.cellsAvailable()) {
     var value = Math.random() < 0.9 ? 2 : 4;
     var tile = new Tile(this.grid.randomAvailableCell(), value);
 
@@ -153,6 +154,15 @@ GameManager.prototype.moveTile = function (tile, cell) {
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2: down, 3: left
   var self = this;
+  var gridToMove;
+  var side;
+  if (this.grid.isActive()) {
+    gridToMove = this.grid;
+    side = "left";
+  } else {
+    gridToMove = this.rightGrid;
+    side = "right";
+  }
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
 
@@ -168,20 +178,20 @@ GameManager.prototype.move = function (direction) {
   // Traverse the grid in the right direction and move tiles
   traversals.x.forEach(function (x) {
     traversals.y.forEach(function (y) {
-      cell = { x: x, y: y, side: "left" };
-      tile = self.grid.cellContent(cell);
+      cell = { x: x, y: y, side: side };
+      tile = gridToMove.cellContent(cell);
 
       if (tile) {
-        var positions = self.findFarthestPosition(cell, vector);
-        var next      = self.grid.cellContent(positions.next);
+        var positions = self.findFarthestPosition(cell, vector, gridToMove);
+        var next      = gridToMove.cellContent(positions.next);
 
         // Only one merger per row traversal?
         if (next && next.value === tile.value && !next.mergedFrom) {
           var merged = new Tile(positions.next, tile.value * 2);
           merged.mergedFrom = [tile, next];
 
-          self.grid.insertTile(merged);
-          self.grid.removeTile(tile);
+          gridToMove.insertTile(merged);
+          gridToMove.removeTile(tile);
 
           // Converge the two tiles' positions
           tile.updatePosition(positions.next);
@@ -203,7 +213,7 @@ GameManager.prototype.move = function (direction) {
   });
 
   if (moved) {
-    this.addRandomTile();
+    this.addRandomTile(side);
 
     if (!this.movesAvailable()) {
       this.over = true; // Game over!
@@ -243,15 +253,15 @@ GameManager.prototype.buildTraversals = function (vector) {
 };
 
 // this method hardcoded to only deal with left for now
-GameManager.prototype.findFarthestPosition = function (cell, vector) {
+GameManager.prototype.findFarthestPosition = function (cell, vector, grid) {
   var previous;
 
   // Progress towards the vector direction until an obstacle is found
   do {
     previous = cell;
-    cell     = { x: previous.x + vector.x, y: previous.y + vector.y, side: "left" };
-  } while (this.grid.withinBounds(cell) &&
-           this.grid.cellAvailable(cell));
+    cell     = { x: previous.x + vector.x, y: previous.y + vector.y, side: grid.side };
+  } while (grid.withinBounds(cell) &&
+           grid.cellAvailable(cell));
 
   return {
     farthest: previous,
@@ -264,6 +274,7 @@ GameManager.prototype.movesAvailable = function () {
   return this.grid.cellsAvailable() || this.tileMatchesAvailable();
 };
 
+// why doesn't this method belong to grid class?
 // Check for available matches between tiles (more expensive check)
 GameManager.prototype.tileMatchesAvailable = function () {
   var self = this;

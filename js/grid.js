@@ -1,7 +1,17 @@
-function Grid(size, previousState,side) {
+function Grid(size, previousState,side,active) {
   this.size = size;
   this.cells = previousState ? this.fromState(previousState) : this.empty();
   this.side = side;
+  this.active = active;
+}
+
+
+Grid.prototype.isActive = function() {
+  return this.active;
+}
+
+Grid.prototype.flipActive = function() {
+  this.active = !this.active;
 }
 
 // Build a grid of the specified size
