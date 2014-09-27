@@ -66,6 +66,10 @@ KeyboardInputManager.prototype.listen = function () {
     if (!modifiers && event.which === 82) {
       self.restart.call(self, event);
     }
+
+    if (!modifiers && event.which == 70) {
+      self.flip.call(self, event);
+    }
   });
 
   // Respond to button presses
@@ -142,3 +146,8 @@ KeyboardInputManager.prototype.bindButtonPress = function (selector, fn) {
   button.addEventListener("click", fn.bind(this));
   button.addEventListener(this.eventTouchend, fn.bind(this));
 };
+
+KeyboardInputManager.prototype.flip = function (event) {
+  event.preventDefault();
+  this.emit("flip");
+}
