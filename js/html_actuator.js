@@ -62,8 +62,8 @@ HTMLActuator.prototype.addTile = function (tile) {
 
   var wrapper   = document.createElement("div");
   var inner     = document.createElement("div");
-  var position  = tile.previousPosition || { x: tile.x, y: tile.y };
-  var positionClass = this.positionClass(position,tile.side);
+  var position  = tile.previousPosition || { x: tile.x, y: tile.y, side: tile.side };
+  var positionClass = this.positionClass(position);
 
   // We can't use classlist because it somehow glitches when replacing classes
   var classes = ["tile", "tile-" + tile.value, positionClass];
@@ -111,12 +111,12 @@ HTMLActuator.prototype.applyClasses = function (element, classes) {
 };
 
 HTMLActuator.prototype.normalizePosition = function (position) {
-  return { x: position.x + 1, y: position.y + 1 };
+  return { x: position.x + 1, y: position.y + 1, side: position.side };
 };
 
-HTMLActuator.prototype.positionClass = function (position,side) {
+HTMLActuator.prototype.positionClass = function (position) {
   position = this.normalizePosition(position);
-  if (side == "left") {
+  if (position.side == "left") {
     return "tile-position-" + position.x + "-" + position.y;
   } else {
     return "right-tile-position-" + position.x + "-" + position.y;

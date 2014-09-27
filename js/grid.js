@@ -1,6 +1,7 @@
-function Grid(size, previousState) {
+function Grid(size, previousState,side) {
   this.size = size;
   this.cells = previousState ? this.fromState(previousState) : this.empty();
+  this.side = side;
 }
 
 // Build a grid of the specified size
@@ -26,7 +27,7 @@ Grid.prototype.fromState = function (state) {
 
     for (var y = 0; y < this.size; y++) {
       var tile = state[x][y];
-      row.push(tile ? new Tile(tile.position, tile.value, tile.side) : null);
+      row.push(tile ? new Tile(tile.position, tile.value) : null);
     }
   }
 
@@ -44,10 +45,9 @@ Grid.prototype.randomAvailableCell = function () {
 
 Grid.prototype.availableCells = function () {
   var cells = [];
-
-  this.eachCell(function (x, y, tile) {
+  this.eachCell(function (x, y, tile,side) {
     if (!tile) {
-      cells.push({ x: x, y: y });
+      cells.push({ x: x, y: y, side: side });
     }
   });
 
@@ -58,7 +58,7 @@ Grid.prototype.availableCells = function () {
 Grid.prototype.eachCell = function (callback) {
   for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
-      callback(x, y, this.cells[x][y]);
+      callback(x, y, this.cells[x][y],this.side);
     }
   }
 };

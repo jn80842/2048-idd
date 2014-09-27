@@ -38,15 +38,15 @@ GameManager.prototype.setup = function () {
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
-                                previousState.grid.cells); // Reload grid
-    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells); // right grid not loaded in local storage yet
+                                previousState.grid.cells,"left"); // Reload grid
+    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells,"right"); 
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
   } else {
-    this.grid        = new Grid(this.size);
-    this.rightGrid   = new Grid(this.size);
+    this.grid        = new Grid(this.size,null,"left");
+    this.rightGrid   = new Grid(this.size,null,"right");
     this.score       = 0;
     this.over        = false;
     this.won         = false;
@@ -74,12 +74,12 @@ GameManager.prototype.addStartTiles = function () {
 GameManager.prototype.addRandomTile = function (side) {
   if (side == "right" && (this.rightGrid.cellsAvailable())) {
     var value = Math.random() < 0.9 ? 2 : 4;
-    var tile = new Tile(this.rightGrid.randomAvailableCell(), value, side);
+    var tile = new Tile(this.rightGrid.randomAvailableCell(), value);
 
     this.rightGrid.insertTile(tile);
   } else if (this.grid.cellsAvailable()) {
     var value = Math.random() < 0.9 ? 2 : 4;
-    var tile = new Tile(this.grid.randomAvailableCell(), value, side);
+    var tile = new Tile(this.grid.randomAvailableCell(), value);
 
     this.grid.insertTile(tile);
   }
@@ -87,7 +87,6 @@ GameManager.prototype.addRandomTile = function (side) {
 
 // Sends the updated grid to the actuator
 GameManager.prototype.actuate = function () {
-  console.log(this.rightGrid.serialize());
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
   }
@@ -169,7 +168,7 @@ GameManager.prototype.move = function (direction) {
   // Traverse the grid in the right direction and move tiles
   traversals.x.forEach(function (x) {
     traversals.y.forEach(function (y) {
-      cell = { x: x, y: y };
+      cell = { x: x, y: y, side: "left" };
       tile = self.grid.cellContent(cell);
 
       if (tile) {
@@ -243,13 +242,14 @@ GameManager.prototype.buildTraversals = function (vector) {
   return traversals;
 };
 
+// this method hardcoded to only deal with left for now
 GameManager.prototype.findFarthestPosition = function (cell, vector) {
   var previous;
 
   // Progress towards the vector direction until an obstacle is found
   do {
     previous = cell;
-    cell     = { x: previous.x + vector.x, y: previous.y + vector.y };
+    cell     = { x: previous.x + vector.x, y: previous.y + vector.y, side: "left" };
   } while (this.grid.withinBounds(cell) &&
            this.grid.cellAvailable(cell));
 
@@ -259,6 +259,7 @@ GameManager.prototype.findFarthestPosition = function (cell, vector) {
   };
 };
 
+//only checks left
 GameManager.prototype.movesAvailable = function () {
   return this.grid.cellsAvailable() || this.tileMatchesAvailable();
 };
@@ -276,7 +277,7 @@ GameManager.prototype.tileMatchesAvailable = function () {
       if (tile) {
         for (var direction = 0; direction < 4; direction++) {
           var vector = self.getVector(direction);
-          var cell   = { x: x + vector.x, y: y + vector.y };
+          var cell   = { x: x + vector.x, y: y + vector.y, side: "left" };
 
           var other  = self.grid.cellContent(cell);
 
@@ -292,5 +293,5 @@ GameManager.prototype.tileMatchesAvailable = function () {
 };
 
 GameManager.prototype.positionsEqual = function (first, second) {
-  return first.x === second.x && first.y === second.y;
+  return first.x === second.x && first.y === second.y && first.side == second.side;
 };
