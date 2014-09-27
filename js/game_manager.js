@@ -39,7 +39,7 @@ GameManager.prototype.setup = function () {
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
                                 previousState.grid.cells); // Reload grid
-    this.rightGrid   = new Grid(this.size); // right grid not loaded in local storage yet
+    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells); // right grid not loaded in local storage yet
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
@@ -87,6 +87,7 @@ GameManager.prototype.addRandomTile = function (side) {
 
 // Sends the updated grid to the actuator
 GameManager.prototype.actuate = function () {
+  console.log(this.rightGrid.serialize());
   if (this.storageManager.getBestScore() < this.score) {
     this.storageManager.setBestScore(this.score);
   }
@@ -112,6 +113,7 @@ GameManager.prototype.actuate = function () {
 GameManager.prototype.serialize = function () {
   return {
     grid:        this.grid.serialize(),
+    rightGrid:   this.rightGrid.serialize(),
     score:       this.score,
     over:        this.over,
     won:         this.won,
@@ -127,13 +129,25 @@ GameManager.prototype.prepareTiles = function () {
       tile.savePosition();
     }
   });
+  this.rightGrid.eachCell(function(x,y,tile) {
+    if (tile) {
+      tile.mergedFrom = null;
+      tile.savePosition();
+    }
+  });
 };
 
 // Move a tile and its representation
 GameManager.prototype.moveTile = function (tile, cell) {
-  this.grid.cells[tile.x][tile.y] = null;
-  this.grid.cells[cell.x][cell.y] = tile;
-  tile.updatePosition(cell);
+  if (tile.side == "left") {
+    this.grid.cells[tile.x][tile.y] = null;
+    this.grid.cells[cell.x][cell.y] = tile;
+    tile.updatePosition(cell);
+  } else {
+    this.rightGrid.cells[tile.x][tile.y] = null;
+    this.rightGrid.cells[cell.x][cell.y] = tile;
+    tile.updatePosition(cell);
+  }
 };
 
 // Move tiles on the grid in the specified direction
