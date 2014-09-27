@@ -1,6 +1,8 @@
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".left-tile-container");
   this.rightTileContainer = document.querySelector(".right-tile-container");
+  this.gridContainer    = document.querySelector(".left-grid-container");
+  this.rightGridContainer = document.querySelector(".right-grid-container");
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");

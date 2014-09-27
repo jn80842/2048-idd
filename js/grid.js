@@ -11,7 +11,14 @@ Grid.prototype.isActive = function() {
 }
 
 Grid.prototype.flipActive = function() {
+  var newClasses;
+  if (this.active) {
+    newClasses = ["grid-container", this.side + "-grid-container", "inactive"];
+  } else {
+    newClasses = ["grid-container", this.side + "-grid-container"];
+  }
   this.active = !this.active;
+  return newClasses;
 }
 
 // Build a grid of the specified size

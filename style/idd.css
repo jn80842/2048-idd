@@ -1,0 +1,4 @@
+  .inactive {
+    background: rgba(238, 228, 218, 0.5);
+    z-index: 100;
+  }

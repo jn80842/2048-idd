@@ -28,8 +28,10 @@ GameManager.prototype.keepPlaying = function () {
 };
 
 GameManager.prototype.flip = function() {
-  this.grid.flipActive();
-  this.rightGrid.flipActive();
+  var newLeftGridClasses = this.grid.flipActive();
+  var newRightGridClasses = this.rightGrid.flipActive();
+  this.actuator.applyClasses(this.actuator.gridContainer,newLeftGridClasses);
+  this.actuator.applyClasses(this.actuator.rightGridContainer,newRightGridClasses)
 }
 
 // Return true if the game is lost, or has won and the user hasn't kept playing
