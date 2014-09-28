@@ -362,7 +362,7 @@ GameManager.prototype.findFarthestPosition = function (cell, vector, grid) {
 
 //only checks left
 GameManager.prototype.movesAvailable = function () {
-  return this.grid.cellsAvailable() || this.tileMatchesAvailable();
+  return this.grid.cellsAvailable() || this.rightGrid.cellsAvailable() || this.tileMatchesAvailable();
 };
 
 // why doesn't this method belong to grid class?
@@ -375,7 +375,7 @@ GameManager.prototype.tileMatchesAvailable = function () {
   for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
       tile = this.grid.cellContent({ x: x, y: y });
-
+      rightTile = this.rightGrid.cellContent({ x: x, y: y});
       if (tile) {
         for (var direction = 0; direction < 4; direction++) {
           var vector = self.getVector(direction);
@@ -386,6 +386,26 @@ GameManager.prototype.tileMatchesAvailable = function () {
           if (other && other.value === tile.value) {
             return true; // These two tiles can be merged
           }
+
+        }
+      }
+      if (rightTile) {
+        for (var direction = 0; direction < 4; direction++) {
+          var vector = self.getVector(direction);
+          var cell   = { x: x + vector.x, y: y + vector.y, side: "right" };
+
+          var other  = self.rightGrid.cellContent(cell);
+
+          if (other && other.value === rightTile.value) {
+            return true; // These two tiles can be merged
+          }
+
+        }
+      }
+      if (tile && rightTile) {
+        if (tile.value == rightTile.value) {
+          //tiles can be merged vertically
+          return true;
         }
       }
     }
