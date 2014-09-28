@@ -4,24 +4,26 @@ function Grid(size, previousState,side,active) {
   this.side = side;
   this.active = active;
   this.wonGrid = false;
+  this.setActiveClass();
 }
 
+Grid.prototype.setActiveClass = function() {
+  if (this.side == "left") {
+    if (!this.active) {
+    document.querySelector(".flip-container").classList.add("inactive");
+  } else {
+    document.querySelector(".flip-container").classList.remove("inactive");
+  }
+}
+
+}
 
 Grid.prototype.isActive = function() {
   return this.active;
 };
 
-Grid.prototype.getGridContainerClasses = function() {
-  if (this.active) {
-    return ["grid-container", this.side + "-grid-container"];
-  } else {
-    return ["grid-container", this.side + "-grid-container", "inactive"];
-  }
-};
-
 Grid.prototype.flipActive = function() {
   this.active = !this.active;
-  return this.getGridContainerClasses();
 };
 
 // Build a grid of the specified size
