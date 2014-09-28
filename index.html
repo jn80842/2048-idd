@@ -18,6 +18,29 @@
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
 </head>
 <body>
+    <script src="http:localhost:8080/socket.io/socket.io.js"></script>
+  <script>
+
+    // open a connection to the serial server:
+    var socket = io.connect('http://localhost:8080');
+
+     // when you get a serialdata event, do this:
+    socket.on('serialEvent', function (data) {
+      console.log("i haz a connection");
+      // look for the textDisplay element in the HTML below:
+      var element = document.getElementById('textDisplay');
+      // set the stuff inside the element's HTML tags to
+      // whatever the 'value' property of the received data is:
+      //element.innerHTML = data.value;
+      var readings = JSON.parse(data.value);
+      var angle = (readings.z*90 + 90);
+      console.log(angle);
+     document.querySelector('.flipper').style.webkitTransform = "rotateY(" + angle + "deg)";
+    });
+  </script>
+
+  </head>
+  <body>
   <div class="container">
     <div class="heading">
       <h1 class="title">2048</h1>
