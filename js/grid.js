@@ -14,6 +14,11 @@ Grid.prototype.setActiveClass = function() {
   } else {
     document.querySelector(".flip-container").classList.remove("inactive");
   }
+  if (this.active) {
+    document.querySelector("." + this.side + "-grid-container").classList.remove("inactive");
+  } else {
+    document.querySelector("." + this.side + "-grid-container").classList.remove("inactive");
+  }
 }
 
 }

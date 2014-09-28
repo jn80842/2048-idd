@@ -3,6 +3,10 @@
     z-index: 100;
   }*/
 
+.inactive .grid-row .grid-cell {
+      background: none; 
+  }
+
   /* entire container, keeps perspective */
 .flip-container {
   perspective: 1000;
