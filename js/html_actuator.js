@@ -24,6 +24,7 @@ HTMLActuator.prototype.actuate = function (grid, grid2, metadata) {
         }
       });
     });
+    self.applyClasses(self.gridContainer,grid.getGridContainerClasses());
 
     grid2.cells.forEach(function (column) {
       column.forEach(function (cell) {
@@ -32,6 +33,7 @@ HTMLActuator.prototype.actuate = function (grid, grid2, metadata) {
         }
       });
     });
+    self.applyClasses(self.rightGridContainer,grid2.getGridContainerClasses());
 
     self.updateScore(metadata.score);
     self.updateBestScore(metadata.bestScore);

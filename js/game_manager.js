@@ -33,6 +33,7 @@ GameManager.prototype.flip = function() {
   var newRightGridClasses = this.rightGrid.flipActive();
   this.actuator.applyClasses(this.actuator.gridContainer,newLeftGridClasses);
   this.actuator.applyClasses(this.actuator.rightGridContainer,newRightGridClasses)
+  this.actuate();
 };
 
 GameManager.prototype.merge = function() {
@@ -50,8 +51,8 @@ GameManager.prototype.setup = function () {
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
-                                previousState.grid.cells,"left",true); // Reload grid
-    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells,"right",false); 
+                                previousState.grid.cells,"left",previousState.grid.active); // Reload grid
+    this.rightGrid   = new Grid(previousState.rightGrid.size,previousState.rightGrid.cells,"right",previousState.rightGrid.active); 
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
@@ -66,7 +67,7 @@ GameManager.prototype.setup = function () {
 
     // Add the initial tiles
     this.addStartTiles();
-    this.grid.flipActive();
+    this.rightGrid.flipActive();
   }
 
   // Update the actuator

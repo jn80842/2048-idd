@@ -9,18 +9,20 @@ function Grid(size, previousState,side,active) {
 
 Grid.prototype.isActive = function() {
   return this.active;
-}
+};
+
+Grid.prototype.getGridContainerClasses = function() {
+  if (this.active) {
+    return ["grid-container", this.side + "-grid-container"];
+  } else {
+    return ["grid-container", this.side + "-grid-container", "inactive"];
+  }
+};
 
 Grid.prototype.flipActive = function() {
-  var newClasses;
-  if (this.active) {
-    newClasses = ["grid-container", this.side + "-grid-container", "inactive"];
-  } else {
-    newClasses = ["grid-container", this.side + "-grid-container"];
-  }
   this.active = !this.active;
-  return newClasses;
-}
+  return this.getGridContainerClasses();
+};
 
 // Build a grid of the specified size
 Grid.prototype.empty = function () {
@@ -130,6 +132,7 @@ Grid.prototype.serialize = function () {
 
   return {
     size: this.size,
-    cells: cellState
+    cells: cellState,
+    active: this.active
   };
 };
