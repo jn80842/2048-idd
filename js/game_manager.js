@@ -31,8 +31,9 @@ GameManager.prototype.keepPlaying = function () {
 GameManager.prototype.flip = function() {
   var newLeftGridClasses = this.grid.flipActive();
   var newRightGridClasses = this.rightGrid.flipActive();
-  this.actuator.applyClasses(this.actuator.gridContainer,newLeftGridClasses);
-  this.actuator.applyClasses(this.actuator.rightGridContainer,newRightGridClasses)
+  // this.actuator.applyClasses(this.actuator.gridContainer,newLeftGridClasses);
+  // this.actuator.applyClasses(this.actuator.rightGridContainer,newRightGridClasses)
+  document.querySelector(".flip-container").classList.toggle("inactive")
   this.actuate();
 };
 
