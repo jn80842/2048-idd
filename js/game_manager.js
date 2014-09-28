@@ -36,7 +36,6 @@ GameManager.prototype.flip = function() {
 };
 
 GameManager.prototype.merge = function() {
-  console.log("call GameManager merge");
   this.moveSide();
 };
 // Return true if the game is lost, or has won and the user hasn't kept playing
@@ -177,7 +176,7 @@ GameManager.prototype.moveTile = function (tile, cell) {
 };
 
 GameManager.prototype.moveSide = function() { // direction is determined by which grid is active
-  //console.log("made it to moveSide method");
+  var self = this;
   var gridMovingFrom, gridMovingTo,activeSide,inactiveSide;
   if (this.grid.isActive()) {
     gridMovingFrom = this.grid;
@@ -190,32 +189,30 @@ GameManager.prototype.moveSide = function() { // direction is determined by whic
     activeSide = "right";
     inactiveSide = "left";
   }
-  //console.log("active side is " + activeSide);
   if (this.isGameTerminated()) return; // notice this is ill-defined for 2 grids though
   var cell, tile;
   var moved = false;
   this.prepareTiles();
   for (var posx = 0; posx < this.size; posx++) {
     for (var posy = 0; posy < this.size; posy++) {
-      //console.log("checking " + posx + " " + " posy" + posy);
       cell = { x: posx, y: posy, side: activeSide };
       tile = gridMovingFrom.cellContent(cell);
       if (tile) {
-        console.log("found a tile " + tile.x + " " + tile.y + " " + tile.side + " " + tile.value);
         cell.side = inactiveSide;
         next = gridMovingTo.cellContent(cell);
-        if (next) {
-          console.log("found a next " + next.x + " " + next.y + " " + next.side + " " + next.value);
-        }
         if (next && tile.value == next.value) {
           var merged = new Tile(cell, tile.value * 2);
-          console.log("new merged tile " + merged.x + " " + merged.y + " " + merged.side + " " + merged.value);
           merged.mergedFrom = [tile, next];
           gridMovingTo.insertTile(merged);
           gridMovingFrom.removeTile(tile);
           tile.updatePosition(cell);
           this.score += merged.value;
-          if (merged.value === 2048) this.won = true;
+          if (merged.value === 32) {
+            gridMovingTo.gridWon = true;
+            if (this.grid.gridWon && this.rightGrid.gridWon) {
+              this.won = true;
+            }
+          }
           moved = true;
         }
         if (!next) {
@@ -227,7 +224,7 @@ GameManager.prototype.moveSide = function() { // direction is determined by whic
     }
   }
   if (moved) {
-    console.log("something moved");
+
     this.addRandomTile(activeSide);
     if (!this.movesAvailable()) { // also only checks left i think?
       this.over = true; // Game over!
@@ -289,7 +286,12 @@ GameManager.prototype.move = function (direction) {
           self.score += merged.value;
 
           // The mighty 2048 tile
-          if (merged.value === 2048) self.won = true;
+          if (merged.value === 2048) {
+            gridToMove.gridWon = true;
+            if (self.grid.gridWon && self.rightGrid.gridWon) {
+              self.won = true;
+            }
+          }
         } else {
           self.moveTile(tile, positions.farthest);
         }

@@ -3,6 +3,7 @@ function Grid(size, previousState,side,active) {
   this.cells = previousState ? this.fromState(previousState) : this.empty();
   this.side = side;
   this.active = active;
+  this.wonGrid = false;
 }
 
 

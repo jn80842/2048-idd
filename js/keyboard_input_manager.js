@@ -72,7 +72,6 @@ KeyboardInputManager.prototype.listen = function () {
     }
 
     if (!modifiers && event.which == 77) {
-      console.log("we saw an m!");
       self.merge.call(self, event);
     }
   });
@@ -159,6 +158,5 @@ KeyboardInputManager.prototype.flip = function (event) {
 
 KeyboardInputManager.prototype.merge = function (event) {
   event.preventDefault();
-  console.log("should be merging!");
   this.emit("merge");
 }
