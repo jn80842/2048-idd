@@ -29,6 +29,7 @@ GameManager.prototype.keepPlaying = function () {
 };
 
 GameManager.prototype.flip = function() {
+  this.prepareTiles();
   this.grid.flipActive();
   this.rightGrid.flipActive();
   document.querySelector(".flip-container").classList.toggle("inactive")

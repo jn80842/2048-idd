@@ -33,7 +33,7 @@ HTMLActuator.prototype.actuate = function (grid, grid2, metadata) {
         }
       });
     });
-    grid2.setActiveClass();
+    //grid2.setActiveClass();
     self.updateScore(metadata.score);
     self.updateBestScore(metadata.bestScore);
 
